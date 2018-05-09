@@ -2,6 +2,8 @@
 from PyQt5.QtWidgets import QWidget, QApplication
 from PyQt5.QtCore import pyqtSlot, pyqtSignal
 from PyQt5 import QtGui, uic
+from fac_acdc import FacAcdc
+from fac_dcdc import FacDcdc
 import serial
 import glob
 import sys
@@ -11,6 +13,9 @@ class PowerSupplyTestInterface(QWidget):
     def __init__(self, *args):
         super(PowerSupplyTestInterface, self).__init__(*args)
         uic.loadUi('wizard.ui', self)
+
+        self._fac_acdc = FacAcdc()
+        self._fac_dcdc = FacDcdc()
 
     def _enable_fac_acdc_widgets(self):
         self.le_fwr_version_fac_acdc.setEnabled(True)
@@ -163,11 +168,19 @@ class PowerSupplyTestInterface(QWidget):
 
     @pyqtSlot()
     def _connect_serial_fac_dcdc(self):
-        pass
+        res = self._fac_dcdc.connect_serial()
+        if res:
+            self.pb_serial_connect_fac_dcdc.setEnabled(False)
+            self.cb_comport_fac_dcdc.setEnabled(False)
+            self.pb_serial_disconnect_fac_dcdc.setEnabled(True)
 
     @pyqtSlot()
     def _disconnect_serial_fac_dcdc(self):
-        pass
+        res = self._fac_dcdc.disconnect_serial()
+        if res:
+            self.pb_serial_connect_fac_dcdc.setEnabled(True)
+            self.cb_comport_fac_dcdc.setEnabled(True)
+            self.pb_serial_disconnect_fac_dcdc.setEnabled(False)
 
     @pyqtSlot()
     def _turn_on_fac_dcdc(self):
