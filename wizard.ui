@@ -53,7 +53,7 @@
       <item>
        <layout class="QVBoxLayout" name="verticalLayout">
         <item>
-         <widget class="QRadioButton" name="radioButton">
+         <widget class="QRadioButton" name="rb_time_1_sec">
           <property name="text">
            <string>1 segundo</string>
           </property>
@@ -63,14 +63,14 @@
          </widget>
         </item>
         <item>
-         <widget class="QRadioButton" name="radioButton_2">
+         <widget class="QRadioButton" name="rb_time_5_sec">
           <property name="text">
            <string>5 segundos</string>
           </property>
          </widget>
         </item>
         <item>
-         <widget class="QRadioButton" name="radioButton_3">
+         <widget class="QRadioButton" name="rb_time_off">
           <property name="text">
            <string>Desligado</string>
           </property>
@@ -82,7 +82,7 @@
        </layout>
       </item>
       <item>
-       <widget class="QPushButton" name="pushButton_19">
+       <widget class="QPushButton" name="pb_force_params_update">
         <property name="minimumSize">
          <size>
           <width>75</width>
@@ -104,7 +104,7 @@
     </widget>
    </item>
    <item>
-    <widget class="QTabWidget" name="le_vcapbank_fac_acdc">
+    <widget class="QTabWidget" name="tab_ps_models">
      <property name="sizePolicy">
       <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
        <horstretch>0</horstretch>
@@ -130,7 +130,7 @@
       </font>
      </property>
      <property name="currentIndex">
-      <number>1</number>
+      <number>3</number>
      </property>
      <widget class="QWidget" name="tab_5">
       <attribute name="title">
@@ -1774,7 +1774,7 @@
              </widget>
             </item>
             <item row="0" column="1">
-             <widget class="QLineEdit" name="lineEdit_13">
+             <widget class="QLineEdit" name="le_vcapbank_fac_acdc">
               <property name="minimumSize">
                <size>
                 <width>55</width>
@@ -2365,6 +2365,130 @@
         </layout>
        </item>
       </layout>
+     </widget>
+     <widget class="QWidget" name="tab_2">
+      <attribute name="title">
+       <string>FBP</string>
+      </attribute>
+     </widget>
+     <widget class="QWidget" name="tab_3">
+      <attribute name="title">
+       <string>FBP DCLINK</string>
+      </attribute>
+      <widget class="QGroupBox" name="groupBox_4">
+       <property name="geometry">
+        <rect>
+         <x>10</x>
+         <y>10</y>
+         <width>260</width>
+         <height>85</height>
+        </rect>
+       </property>
+       <property name="minimumSize">
+        <size>
+         <width>260</width>
+         <height>85</height>
+        </size>
+       </property>
+       <property name="maximumSize">
+        <size>
+         <width>260</width>
+         <height>85</height>
+        </size>
+       </property>
+       <property name="font">
+        <font>
+         <weight>75</weight>
+         <bold>true</bold>
+        </font>
+       </property>
+       <property name="title">
+        <string>Porta Serial</string>
+       </property>
+       <property name="alignment">
+        <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignVCenter</set>
+       </property>
+       <layout class="QGridLayout" name="gridLayout_13">
+        <item row="0" column="0">
+         <widget class="QLabel" name="label_34">
+          <property name="minimumSize">
+           <size>
+            <width>47</width>
+            <height>13</height>
+           </size>
+          </property>
+          <property name="maximumSize">
+           <size>
+            <width>47</width>
+            <height>13</height>
+           </size>
+          </property>
+          <property name="text">
+           <string>Porta</string>
+          </property>
+         </widget>
+        </item>
+        <item row="0" column="1" alignment="Qt::AlignRight">
+         <widget class="QComboBox" name="cb_comport_fbp_dclink">
+          <property name="minimumSize">
+           <size>
+            <width>82</width>
+            <height>22</height>
+           </size>
+          </property>
+          <property name="maximumSize">
+           <size>
+            <width>82</width>
+            <height>22</height>
+           </size>
+          </property>
+         </widget>
+        </item>
+        <item row="1" column="0">
+         <widget class="QPushButton" name="pb_serial_connect_fbp_dclink">
+          <property name="minimumSize">
+           <size>
+            <width>82</width>
+            <height>23</height>
+           </size>
+          </property>
+          <property name="maximumSize">
+           <size>
+            <width>82</width>
+            <height>23</height>
+           </size>
+          </property>
+          <property name="text">
+           <string>Conectar</string>
+          </property>
+         </widget>
+        </item>
+        <item row="1" column="1">
+         <widget class="QPushButton" name="pb_serial_disconnect_fbp_dclink">
+          <property name="minimumSize">
+           <size>
+            <width>82</width>
+            <height>23</height>
+           </size>
+          </property>
+          <property name="maximumSize">
+           <size>
+            <width>82</width>
+            <height>23</height>
+           </size>
+          </property>
+          <property name="text">
+           <string>Desconectar</string>
+          </property>
+         </widget>
+        </item>
+       </layout>
+      </widget>
+     </widget>
+     <widget class="QWidget" name="tab_4">
+      <attribute name="title">
+       <string>Parâmetros</string>
+      </attribute>
      </widget>
     </widget>
    </item>

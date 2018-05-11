@@ -14,9 +14,19 @@ class PowerSupplyTestInterface(QWidget):
         super(PowerSupplyTestInterface, self).__init__(*args)
         uic.loadUi('wizard.ui', self)
 
+        self._disable_fac_dcdc_widgets()
+        self._disable_fac_acdc_widgets()
+
+        self._update_time = -1
+
         self._fac_acdc = FacAcdc()
         self._fac_dcdc = FacDcdc()
 
+        self.pb_serial_disconnect_fac_dcdc.setEnabled(False)
+        self.pb_serial_disconnect_fac_acdc.setEnabled(False)
+
+        self._list_serial_ports()
+        self._connect_signals()
 
 ###############################################################################
 ########################### GUI Initialization ################################
@@ -26,6 +36,8 @@ class PowerSupplyTestInterface(QWidget):
         self.le_soft_intlk_fac_acdc.setEnabled(True)
         self.pb_soft_intlk_info_fac_acdc.setEnabled(True)
         self.pb_soft_intlk_reset_fac_acdc.setEnabled(True)
+        self.pb_hard_intlk_info_fac_acdc.setEnabled(True)
+        self.pb_hard_intlk_reset_fac_acdc.setEnabled(True)
         self.le_hard_intlk_fac_acdc.setEnabled(True)
         self.pb_hard_intlk_info_fac_acdc.setEnabled(True)
         self.pb_turn_on_fac_acdc.setEnabled(True)
@@ -34,8 +46,6 @@ class PowerSupplyTestInterface(QWidget):
         self.pb_close_loop_fac_acdc.setEnabled(True)
         self.le_setpoint_fac_acdc.setEnabled(True)
         self.le_reference_fac_acdc.setEnabled(True)
-        self.le_slowref_counter_fac_acdc.setEnabled(True)
-        self.le_syncpulse_counter_fac_acdc.setEnabled(True)
         self.pb_export_param_fac_acdc.setEnabled(True)
         self.pb_send_param_fac_acdc.setEnabled(True)
         self.le_vcapbank_fac_acdc.setEnabled(True)
@@ -50,16 +60,16 @@ class PowerSupplyTestInterface(QWidget):
         self.le_soft_intlk_fac_acdc.setEnabled(False)
         self.pb_soft_intlk_info_fac_acdc.setEnabled(False)
         self.pb_soft_intlk_reset_fac_acdc.setEnabled(False)
-        self.le_hard_intlk_fac_acdc.setEnabled(False)
+        self.le_soft_intlk_fac_acdc.setEnabled(False)
         self.pb_hard_intlk_info_fac_acdc.setEnabled(False)
+        self.pb_hard_intlk_reset_fac_acdc.setEnabled(False)
+        self.le_hard_intlk_fac_acdc.setEnabled(False)
         self.pb_turn_on_fac_acdc.setEnabled(False)
         self.pb_turn_off_fac_acdc.setEnabled(False)
         self.pb_open_loop_fac_acdc.setEnabled(False)
         self.pb_close_loop_fac_acdc.setEnabled(False)
         self.le_setpoint_fac_acdc.setEnabled(False)
         self.le_reference_fac_acdc.setEnabled(False)
-        self.le_slowref_counter_fac_acdc.setEnabled(False)
-        self.le_syncpulse_counter_fac_acdc.setEnabled(False)
         self.pb_export_param_fac_acdc.setEnabled(False)
         self.pb_send_param_fac_acdc.setEnabled(False)
         self.le_vcapbank_fac_acdc.setEnabled(False)
@@ -187,10 +197,6 @@ class PowerSupplyTestInterface(QWidget):
         self.pb_turn_off_fac_acdc.clicked.connect(self._turn_off_fac_acdc)
         self.pb_open_loop_fac_acdc.clicked.connect(self._open_loop_fac_acdc)
         self.pb_close_loop_fac_acdc.clicked.connect(self._close_loop_fac_acdc)
-        self.pb_soft_intlk_info_fac_acdc.clicked.connect(self._soft_intlk_info_fac_acdc)
-        self.pb_soft_intlk_reset_fac_acdc.clicked.connect(self._soft_intlk_reset_fac_acdc)
-        self.pb_hard_intlk_info_fac_acdc.clicked.connect(self._hard_intlk_reset_fac_acdc)
-        self.pb_hard_intlk_reset_fac_acdc.clicked.connect(self._hard_intlk_reset_fac_acdc)
         self.pb_export_param_fac_acdc.clicked.connect(self._export_params_fac_acdc)
         self.pb_send_param_fac_acdc.clicked.connect(self._send_params_fac_acdc)
 
@@ -222,19 +228,32 @@ class PowerSupplyTestInterface(QWidget):
 
     @pyqtSlot()
     def _connect_serial_fac_dcdc(self):
-        res = self._fac_dcdc.connect_serial()
-        if res:
-            self.pb_serial_connect_fac_dcdc.setEnabled(False)
-            self.cb_comport_fac_dcdc.setEnabled(False)
-            self.pb_serial_disconnect_fac_dcdc.setEnabled(True)
+        try:
+            port = str(self.cb_comport_fac_dcdc.currentText())
+            res = self._fac_dcdc.connect_serial(port)
+            print("Resposta: " + str(res))
+            if res:
+                self.pb_serial_connect_fac_dcdc.setEnabled(False)
+                self.cb_comport_fac_dcdc.setEnabled(False)
+                self.pb_serial_disconnect_fac_dcdc.setEnabled(True)
+                self._enable_fac_dcdc_widgets()
+                self.pb_turn_off_fac_dcdc.setEnabled(False)
+                self.pb_open_loop_fac_dcdc.setEnabled(False)
+                self.pb_siggen_disable_fac_dcdc.setEnabled(False)
+        except:
+            pass
 
     @pyqtSlot()
     def _disconnect_serial_fac_dcdc(self):
-        res = self._fac_dcdc.disconnect_serial()
-        if res:
-            self.pb_serial_connect_fac_dcdc.setEnabled(True)
-            self.cb_comport_fac_dcdc.setEnabled(True)
-            self.pb_serial_disconnect_fac_dcdc.setEnabled(False)
+        try:
+            res = self._fac_dcdc.disconnect_serial()
+            if res:
+                self.pb_serial_connect_fac_dcdc.setEnabled(True)
+                self.cb_comport_fac_dcdc.setEnabled(True)
+                self.pb_serial_disconnect_fac_dcdc.setEnabled(False)
+                self._disable_fac_dcdc_widgets()
+        except:
+            pass
 
     @pyqtSlot()
     def _turn_on_fac_dcdc(self):
@@ -304,19 +323,31 @@ class PowerSupplyTestInterface(QWidget):
 
     @pyqtSlot()
     def _connect_serial_fac_acdc(self):
-        res = self._fac_acdc.connect_serial()
-        if res:
-            self.pb_serial_connect_fac_acdc.setEnabled(False)
-            self.cb_comport_fac_acdc.setEnabled(False)
-            self.pb_serial_disconnect_fac_acdc.setEnabled(True)
+        try:
+            port = str(self.cb_comport_fac_acdc.currentText())
+            res = self._fac_acdc.connect_serial(port)
+            if res:
+                self.pb_serial_connect_fac_acdc.setEnabled(False)
+                self.cb_comport_fac_acdc.setEnabled(False)
+                self.pb_serial_disconnect_fac_acdc.setEnabled(True)
+                self._enable_fac_acdc_widgets()
+                self.pb_turn_off_fac_acdc.setEnabled(False)
+                self.pb_open_loop_fac_acdc.setEnabled(False)
+                self.pb_siggen_disable_fac_acdc.setEnabled(False)
+        except:
+            pass
 
     @pyqtSlot()
     def _disconnect_serial_fac_acdc(self):
-        res = self._fac_acdc.disconnect_serial()
-        if res:
-            self.pb_serial_connect_fac_acdc.setEnabled(True)
-            self.cb_comport_fac_acdc.setEnabled(True)
-            self.pb_serial_disconnect_fac_acdc.setEnabled(False)
+        try:
+            res = self._fac_acdc.disconnect_serial()
+            if res:
+                self.pb_serial_connect_fac_acdc.setEnabled(True)
+                self.cb_comport_fac_acdc.setEnabled(True)
+                self.pb_serial_disconnect_fac_acdc.setEnabled(False)
+                self._disable_fac_acdc_widgets()
+        except:
+            pass
 
     @pyqtSlot()
     def _turn_on_fac_acdc(self):
@@ -345,6 +376,14 @@ class PowerSupplyTestInterface(QWidget):
         if res:
             self.pb_open_loop_fac_acdc.setEnabled(True)
             self.pb_close_loop_fac_acdc.setEnabled(False)
+
+    @pyqtSlot()
+    def _export_params_fac_acdc(self):
+        pass
+
+    @pyqtSlot()
+    def _send_params_fac_acdc(self):
+        pass
 
 ###############################################################################
 ############################# Run Application #################################
