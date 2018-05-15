@@ -130,7 +130,7 @@
       </font>
      </property>
      <property name="currentIndex">
-      <number>4</number>
+      <number>3</number>
      </property>
      <widget class="QWidget" name="tab_5">
       <attribute name="title">
@@ -1229,7 +1229,7 @@
              </widget>
             </item>
             <item row="1" column="1">
-             <widget class="QLineEdit" name="le_reference_fac_dcdc">
+             <widget class="QLineEdit" name="le_readback_fac_dcdc">
               <property name="minimumSize">
                <size>
                 <width>110</width>
@@ -6805,7 +6805,7 @@
         <rect>
          <x>0</x>
          <y>0</y>
-         <width>1171</width>
+         <width>301</width>
          <height>951</height>
         </rect>
        </property>

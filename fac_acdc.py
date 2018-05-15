@@ -7,6 +7,21 @@ class FacAcdc:
         self._drs = SerialDRS()
         self._is_active = False
 
+        self._screen_readings = {
+            'readback' : 0.0,
+            'slowref_counter' : 0,
+            'syncpulse_counter' : 0,
+            'iload_1' : 0.0,
+            'iload_2' : 0.0,
+            'vload' : 0.0,
+            'vcapbank' : 0.0,
+            'induc_temp' : 0.0,
+            'igbt_temp' : 0.0,
+            'duty_cycle' : 0,
+            'soft_intlk' : 0,
+            'hard_intlk' : 0
+        }
+
     @property
     def is_active(self):
         return self._is_active

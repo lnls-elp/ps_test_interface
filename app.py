@@ -21,6 +21,7 @@ class PowerSupplyTestInterface(QWidget):
 
         self._fac_acdc = FacAcdc()
         self._fac_dcdc = FacDcdc()
+        self._fbp_dclink = FbpDclink()
 
         self.pb_serial_disconnect_fac_dcdc.setEnabled(False)
         self.pb_serial_disconnect_fac_acdc.setEnabled(False)
@@ -199,6 +200,30 @@ class PowerSupplyTestInterface(QWidget):
         self.pb_close_loop_fac_acdc.clicked.connect(self._close_loop_fac_acdc)
         self.pb_export_param_fac_acdc.clicked.connect(self._export_params_fac_acdc)
         self.pb_send_param_fac_acdc.clicked.connect(self._send_params_fac_acdc)
+
+###############################################################################
+################################ GUI Update ###################################
+###############################################################################
+    def _update_gui_params(self):
+
+        if self._fac_dcdc.is_active:
+            self._fac_dcdc.update_params()
+        elif self._fac_acdc.is_active:
+            self._fac_acdc.update_params()
+        elif self._fbp_dclink.is_active:
+            self._fbp_dclink.update_params()
+
+    @pyqtSlot(dict):
+    def _update_gui_fac_dcdc(self, params):
+        pass
+
+    @pyqtSlot(dict):
+    def _update_gui_fac_acdc(self, params):
+        pass
+
+    @pyqtSlot(dict):
+    def _update_gui_fbp_dclink(self, params):
+        pass
 
 ###############################################################################
 ############################# System Methods ##################################
