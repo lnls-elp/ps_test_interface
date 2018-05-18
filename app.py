@@ -20,9 +20,9 @@ class PowerSupplyTestInterface(QWidget):
 
         self._update_time = -1
 
-        self._fac_acdc = FacAcdc()
-        self._fac_dcdc = FacDcdc()
-        self._fbp_dclink = FbpDclink()
+        self._fac_acdc      = FacAcdc()
+        self._fac_dcdc      = FacDcdc()
+        self._fbp_dclink    = FbpDclink()
 
         self.pb_serial_disconnect_fac_dcdc.setEnabled(False)
         self.pb_serial_disconnect_fac_acdc.setEnabled(False)
@@ -198,7 +198,7 @@ class PowerSupplyTestInterface(QWidget):
     def _connect_signals(self):
         #General
         self.pb_force_params_update.clicked.connect(self._force_update_params)
-        self.rb_time_5_sec.
+
         # FAC DCDC
         self.pb_serial_connect_fac_dcdc.clicked.connect(self._connect_serial_fac_dcdc)
         self.pb_serial_disconnect_fac_dcdc.clicked.connect(self._disconnect_serial_fac_dcdc)
@@ -214,6 +214,7 @@ class PowerSupplyTestInterface(QWidget):
         self.pb_hard_intlk_reset_fac_dcdc.clicked.connect(self._hard_intlk_reset_fac_dcdc)
         self.pb_export_param_fac_dcdc.clicked.connect(self._export_params_fac_dcdc)
         self.pb_send_param_fac_dcdc.clicked.connect(self._send_params_fac_dcdc)
+        self._fac_dcdc.update_gui.connect(self._update_gui_fac_dcdc)
 
         # FAC ACDC
         self.pb_serial_connect_fac_acdc.clicked.connect(self._connect_serial_fac_acdc)
@@ -247,7 +248,7 @@ class PowerSupplyTestInterface(QWidget):
 
     @pyqtSlot(dict)
     def _update_gui_fac_dcdc(self, params):
-        self.le_readback_fac_dcdc.setText(str(params['readback']))
+        self.le_readback_fac_dcdc.setText(str(params['reference']))
         self.le_slowref_counter_fac_dcdc.setText(str(params['slowref_counter']))
         self.le_syncpulse_counter_fac_dcdc.setText(str(params['syncpulse_counter']))
         self.le_soft_intlk_fac_dcdc.setText(str(params['soft_intlk']))
@@ -259,6 +260,7 @@ class PowerSupplyTestInterface(QWidget):
         self.le_induc_temp_fac_dcdc.setText(str(params['induc_temp']))
         self.le_igbt_temp_fac_dcdc.setText(str(params['igbt_temp']))
         self.le_duty_cycle_fac_dcdc.setText(str(params['duty_cycle']))
+        self.le_fwr_version_fac_dcdc.setText(params['fwr_version'])
 
     @pyqtSlot(dict)
     def _update_gui_fac_acdc(self, params):
@@ -296,6 +298,9 @@ class PowerSupplyTestInterface(QWidget):
             except (OSError, serial.SerialException):
                 pass
 
+    def _force_update_params(self):
+        self._update_gui_params()
+
 ###############################################################################
 ############################ FAC DCDC Slots ###################################
 ###############################################################################
@@ -313,6 +318,8 @@ class PowerSupplyTestInterface(QWidget):
                 self.pb_turn_off_fac_dcdc.setEnabled(False)
                 self.pb_open_loop_fac_dcdc.setEnabled(False)
                 self.pb_siggen_disable_fac_dcdc.setEnabled(False)
+
+                self._update_gui_params()
         except:
             pass
 
@@ -330,31 +337,29 @@ class PowerSupplyTestInterface(QWidget):
 
     @pyqtSlot()
     def _turn_on_fac_dcdc(self):
-        res = self._fac_dcdc.turn_on()
-        if res:
-            self.pb_turn_on_fac_dcdc.setEnabled(False)
-            self.pb_turn_off_fac_dcdc.setEnabled(True)
+        self._fac_dcdc.turn_on()
+        self.pb_turn_on_fac_dcdc.setEnabled(False)
+        self.pb_turn_off_fac_dcdc.setEnabled(True)
+        self._update_gui_params()
 
     @pyqtSlot()
     def _turn_off_fac_dcdc(self):
-        res = self._fac_dcdc.turn_off()
-        if res:
-            self.pb_turn_on_fac_dcdc.setEnabled(True)
-            self.pb_turn_off_fac_dcdc.setEnabled(False)
+        self._fac_dcdc.turn_off()
+        self.pb_turn_on_fac_dcdc.setEnabled(True)
+        self.pb_turn_off_fac_dcdc.setEnabled(False)
+        self._update_gui_params()
 
     @pyqtSlot()
     def _open_loop_fac_dcdc(self):
-        res = self._fac_dcdc.open_loop()
-        if res:
-            self.pb_open_loop_fac_dcdc.setEnabled(False)
-            self.pb_close_loop_fac_dcdc.setEnabled(True)
+        self._fac_dcdc.open_loop()
+        self.pb_open_loop_fac_dcdc.setEnabled(False)
+        self.pb_close_loop_fac_dcdc.setEnabled(True)
 
     @pyqtSlot()
     def _close_loop_fac_dcdc(self):
-        res = self._fac_dcdc.close_loop()
-        if res:
-            self.pb_open_loop_fac_dcdc.setEnabled(True)
-            self.pb_close_loop_fac_dcdc.setEnabled(False)
+        self._fac_dcdc.close_loop()
+        self.pb_open_loop_fac_dcdc.setEnabled(True)
+        self.pb_close_loop_fac_dcdc.setEnabled(False)
 
     @pyqtSlot()
     def _siggen_enable_fac_dcdc(self):
@@ -513,6 +518,13 @@ class PowerSupplyTestInterface(QWidget):
     @pyqtSlot()
     def _intlk_reset_fbp_dclink(self):
         pass
+
+    @pyqtSlot()
+    def send_setpoint_fac_dcdc(self):
+        sp = le_setpoint_fac_dcdc.text()
+        if sp is not None:
+            value = float(sp)
+            self._fac_dcdc.send_setpoint(value)
 
 ###############################################################################
 ############################# Run Application #################################
