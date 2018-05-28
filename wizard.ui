@@ -130,7 +130,7 @@
       </font>
      </property>
      <property name="currentIndex">
-      <number>3</number>
+      <number>0</number>
      </property>
      <widget class="QWidget" name="tab_5">
       <attribute name="title">
@@ -1224,7 +1224,7 @@
                </size>
               </property>
               <property name="text">
-               <string>Readback (A)</string>
+               <string>Reference (A)</string>
               </property>
              </widget>
             </item>
@@ -2109,7 +2109,7 @@
                </size>
               </property>
               <property name="text">
-               <string>Readback (V)</string>
+               <string>Reference (V)</string>
               </property>
              </widget>
             </item>
@@ -6543,7 +6543,7 @@
             <item row="3" column="0">
              <widget class="QLabel" name="label_39">
               <property name="text">
-               <string>Tensão de DCLINK 4 (V)</string>
+               <string>Status Falha</string>
               </property>
              </widget>
             </item>

@@ -1,5 +1,6 @@
 from PyQt5.QtCore import pyqtSlot, pyqtSignal, QThread
 from common.pydrs import SerialDRS
+import itertools
 
 class FacDcdc(QThread):
 
@@ -27,6 +28,24 @@ class FacDcdc(QThread):
             'hard_intlk'        : 0,
             'fwr_version'       : ''
         }
+
+        self._hard_interlocks = [
+            'Falha nos drivers do módulo',
+            'Sub-tensão no DCLINK',
+            'Sobre-tensão no DCLINK',
+            'Sobre-tensão na carga',
+            'Sobre-corrente na carga'
+        ]
+
+        self._soft_interlocks = [
+            'Falha leitura DCCT 2',
+            'Falha leitura DCCT 1',
+            'Alta diferença entre DCCTs',
+            'Falha DCCT 2',
+            'Falha DCCT 1',
+            'Sobre-temperatura nos indutores',
+            'Sobre-temperatura nos indutores'
+        ]
 
     @property
     def is_active(self):
@@ -114,3 +133,19 @@ class FacDcdc(QThread):
             self.update_gui.emit(self._screen_readings)
         except:
             pass
+
+    def get_hard_intlk_list(self, bitmask):
+        bitfield = self._get_bitfield(bitmask)
+        mask = bitfield[len(bitfield) - len(self._hard_interlocks):]
+        filtered = itertools.compress(self._hard_interlocks, mask)
+        return list(filtered)
+
+    def get_soft_intlk_list(self, bitmask):
+        bitfield = self._get_bitfield(bitmask)
+        mask = bitfield[len(bitfield) - len(self._soft_interlocks):]
+        filtered = itertools.compress(self._soft_interlocks, mask)
+        return list(filtered)
+
+    def _get_bitfield(self, bitmask):
+        bitfield = [int(bit) for bit in bin(bitmask)[2:]] # [2:] to remove '0b'
+        return bitfield

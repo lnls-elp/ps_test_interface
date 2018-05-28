@@ -1,6 +1,6 @@
 #!/usr/bin/python3
 from PyQt5.QtWidgets import QWidget, QApplication
-from PyQt5.QtCore import pyqtSlot, pyqtSignal
+from PyQt5.QtCore import pyqtSlot, pyqtSignal, QTimer
 from PyQt5 import QtGui, uic
 from fac_acdc import FacAcdc
 from fac_dcdc import FacDcdc
@@ -23,6 +23,10 @@ class PowerSupplyTestInterface(QWidget):
         self._fac_acdc      = FacAcdc()
         self._fac_dcdc      = FacDcdc()
         self._fbp_dclink    = FbpDclink()
+
+        self._timer         = QTimer()
+        self._timer.timeout.connect(self._update_gui_params)
+        self._timer.start(5000)
 
         self.pb_serial_disconnect_fac_dcdc.setEnabled(False)
         self.pb_serial_disconnect_fac_acdc.setEnabled(False)
@@ -214,6 +218,7 @@ class PowerSupplyTestInterface(QWidget):
         self.pb_hard_intlk_reset_fac_dcdc.clicked.connect(self._hard_intlk_reset_fac_dcdc)
         self.pb_export_param_fac_dcdc.clicked.connect(self._export_params_fac_dcdc)
         self.pb_send_param_fac_dcdc.clicked.connect(self._send_params_fac_dcdc)
+        self.le_setpoint_fac_dcdc.editingFinished.connect(self._send_setpoint_fac_dcdc)
         self._fac_dcdc.update_gui.connect(self._update_gui_fac_dcdc)
 
         # FAC ACDC
@@ -233,12 +238,14 @@ class PowerSupplyTestInterface(QWidget):
         self.pb_turn_off_fbp_dclink.clicked.connect(self._turn_off_fbp_dclink)
         self.pb_intlk_info_fbp_dclink.clicked.connect(self._intlk_info_fbp_dclink)
         self.pb_intlk_reset_fbp_dclink.clicked.connect(self._intlk_reset_fbp_dclink)
+        self.le_digital_pot_write_fbp_dclink.editingFinished.connect(self._write_digital_pot_line_edit)
+        self.sl_digital_pot_fbp_dclink.valueChanged.connect(self._write_digital_pot_slider)
+        self._fbp_dclink.update_gui.connect(self._update_gui_fbp_dclink)
 
 ###############################################################################
 ################################ GUI Update ###################################
 ###############################################################################
     def _update_gui_params(self):
-
         if self._fac_dcdc.is_active:
             self._fac_dcdc.update_params()
         elif self._fac_acdc.is_active:
@@ -268,12 +275,12 @@ class PowerSupplyTestInterface(QWidget):
 
     @pyqtSlot(dict)
     def _update_gui_fbp_dclink(self, params):
-        self.le_digital_pot_write_fbp_dclink.setText(str(params['digital_pot_read']))
+        self.le_digital_pot_read_fbp_dclink.setText(str(params['digital_pot_read']))
         self.le_intlk_fbp_dclink.setText(str(params['intlk']))
         self.le_vdclink_1_fbp_dclink.setText(str(params['vdclink_1']))
         self.le_vdclink_2_fbp_dclink.setText(str(params['vdclink_2']))
         self.le_vdclink_3_fbp_dclink.setText(str(params['vdclink_3']))
-        self.le_vdclink_4_fbp_dclink.setText(str(params['vdclink_4']))
+        self.le_vdclink_4_fbp_dclink.setText(str(params['fault_status']))
 
 ###############################################################################
 ############################# System Methods ##################################
@@ -363,17 +370,15 @@ class PowerSupplyTestInterface(QWidget):
 
     @pyqtSlot()
     def _siggen_enable_fac_dcdc(self):
-        res = self._fac_dcdc.enable_siggen()
-        if res:
-            self.pb_siggen_enable_fac_dcdc.setEnabled(False)
-            self.pb_siggen_disable_fac_dcdc.setEnabled(True)
+        self._fac_dcdc.enable_siggen()
+        self.pb_siggen_enable_fac_dcdc.setEnabled(False)
+        self.pb_siggen_disable_fac_dcdc.setEnabled(True)
 
     @pyqtSlot()
     def _siggen_disable_fac_dcdc(self):
-        res = self._fac_dcdc.disable_siggen()
-        if res:
-            self.pb_siggen_enable_fac_dcdc.setEnabled(True)
-            self.pb_siggen_disable_fac_dcdc.setEnabled(False)
+        self._fac_dcdc.disable_siggen()
+        self.pb_siggen_enable_fac_dcdc.setEnabled(True)
+        self.pb_siggen_disable_fac_dcdc.setEnabled(False)
 
     @pyqtSlot()
     def _soft_intlk_info_fac_dcdc(self):
@@ -390,6 +395,13 @@ class PowerSupplyTestInterface(QWidget):
     @pyqtSlot()
     def _hard_intlk_reset_fac_dcdc(self):
         res = self._fac_dcdc.hard_intlk_reset()
+
+    @pyqtSlot()
+    def _send_setpoint_fac_dcdc(self):
+        sp = le_setpoint_fac_dcdc.text()
+        if sp is not None:
+            value = float(sp)
+            self._fac_dcdc.send_setpoint(value)
 
     @pyqtSlot()
     def _export_params_fac_dcdc(self):
@@ -482,6 +494,7 @@ class PowerSupplyTestInterface(QWidget):
                 self.pb_serial_disconnect_fbp_dclink.setEnabled(True)
                 self._enable_fbp_dclink_widgets()
                 self.pb_turn_off_fbp_dclink.setEnabled(False)
+                self._update_gui_params()
         except:
             pass
 
@@ -499,17 +512,20 @@ class PowerSupplyTestInterface(QWidget):
 
     @pyqtSlot()
     def _turn_on_fbp_dclink(self):
-        res = self._fbp_dclink.turn_on()
-        if res:
+        try:
+            self._fbp_dclink.turn_on()
             self.pb_turn_on_fbp_dclink.setEnabled(False)
             self.pb_turn_off_fbp_dclink.setEnabled(True)
+            self._update_gui_params()
+        except:
+            pass
 
     @pyqtSlot()
     def _turn_off_fbp_dclink(self):
-        res = self._fbp_dclink.turn_off()
-        if res:
-            self.pb_turn_on_fbp_dclink.setEnabled(True)
-            self.pb_turn_off_fbp_dclink.setEnabled(False)
+        self._fbp_dclink.turn_off()
+        self.pb_turn_on_fbp_dclink.setEnabled(True)
+        self.pb_turn_off_fbp_dclink.setEnabled(False)
+        self._update_gui_params()
 
     @pyqtSlot()
     def _intlk_info_fbp_dclink(self):
@@ -517,14 +533,32 @@ class PowerSupplyTestInterface(QWidget):
 
     @pyqtSlot()
     def _intlk_reset_fbp_dclink(self):
-        pass
+        self._fbp_dclink.intlk_reset()
 
     @pyqtSlot()
-    def send_setpoint_fac_dcdc(self):
-        sp = le_setpoint_fac_dcdc.text()
-        if sp is not None:
-            value = float(sp)
-            self._fac_dcdc.send_setpoint(value)
+    def _write_digital_pot_slider(self):
+        try:
+            pot_val = self.sl_digital_pot_fbp_dclink.value()
+            self.le_digital_pot_write_fbp_dclink.setText(str(pot_val))
+            self.write_reference_voltage(pot_val)
+        except:
+            pass
+
+    @pyqtSlot()
+    def _write_digital_pot_line_edit(self):
+        try:
+            val = int(self.le_digital_pot_write_fbp_dclink.text())
+            if val < 0:
+                val = 0
+                self.le_digital_pot_write_fbp_dclink.setText(str(0))
+            elif val > 100:
+                val = 100
+                self.le_digital_pot_write_fbp_dclink.setText(str(100))
+
+            self._fbp_dclink.write_reference_voltage(val)
+            self.sl_digital_pot_fbp_dclink.setSliderPosition(val)
+        except:
+            pass
 
 ###############################################################################
 ############################# Run Application #################################
