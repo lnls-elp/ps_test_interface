@@ -99,13 +99,7 @@ class FacDcdc(QThread):
         except:
             pass
 
-    def soft_intlk_info(self):
-        pass
-
     def soft_intlk_reset(self):
-        pass
-
-    def hard_intlk_info(self):
         pass
 
     def hard_intlk_reset(self):

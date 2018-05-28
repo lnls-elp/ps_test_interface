@@ -24,14 +24,14 @@ class FbpDclink(QThread):
         }
 
         self._interlocks = [
-            'Falha Fonte 1',
-            'Falha Fonte 2',
-            'Falha Fonte 3',
-            'Sensor de fumaça',
-            'Interlock externo',
-            'Sobre-tensão na fonte 1',
+            'Sobre tensão na fonte 3',
             'Sobre-tensão na fonte 2',
-            'Sobre tensão na fonte 3'
+            'Sobre-tensão na fonte 1',
+            'Interlock externo',
+            'Sensor de fumaça',
+            'Falha Fonte 3',
+            'Falha Fonte 2',
+            'Falha Fonte 1'
         ]
 
     @property
@@ -102,3 +102,13 @@ class FbpDclink(QThread):
 
         print(self._screen_readings)
         self.update_gui.emit(self._screen_readings)
+
+    def get_intlk_list(self, bitmask):
+        bitfield = self._get_bitfield(bitmask)
+        mask = bitfield[len(bitfield) - len(self._interlocks):]
+        filtered = itertools.compress(self._interlocks, mask)
+        return list(filtered)
+
+    def _get_bitfield(self, bitmask):
+        bitfield = [int(bit) for bit in bin(bitmask)[2:]] # [2:] to remove '0b'
+        return bitfield

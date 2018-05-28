@@ -1,5 +1,5 @@
 #!/usr/bin/python3
-from PyQt5.QtWidgets import QWidget, QApplication
+from PyQt5.QtWidgets import QWidget, QApplication, QMessageBox
 from PyQt5.QtCore import pyqtSlot, pyqtSignal, QTimer
 from PyQt5 import QtGui, uic
 from fac_acdc import FacAcdc
@@ -214,7 +214,7 @@ class PowerSupplyTestInterface(QWidget):
         self.pb_siggen_disable_fac_dcdc.clicked.connect(self._siggen_disable_fac_dcdc)
         self.pb_soft_intlk_info_fac_dcdc.clicked.connect(self._soft_intlk_info_fac_dcdc)
         self.pb_soft_intlk_reset_fac_dcdc.clicked.connect(self._soft_intlk_reset_fac_dcdc)
-        self.pb_hard_intlk_info_fac_dcdc.clicked.connect(self._hard_intlk_reset_fac_dcdc)
+        self.pb_hard_intlk_info_fac_dcdc.clicked.connect(self._hard_intlk_info_fac_dcdc)
         self.pb_hard_intlk_reset_fac_dcdc.clicked.connect(self._hard_intlk_reset_fac_dcdc)
         self.pb_export_param_fac_dcdc.clicked.connect(self._export_params_fac_dcdc)
         self.pb_send_param_fac_dcdc.clicked.connect(self._send_params_fac_dcdc)
@@ -382,7 +382,25 @@ class PowerSupplyTestInterface(QWidget):
 
     @pyqtSlot()
     def _soft_intlk_info_fac_dcdc(self):
-        res = self._fac_dcdc.soft_intlk_info()
+        try:
+            intlk = int(self.le_soft_intlk_fac_dcdc.text())
+            intlk_list = self._fac_dcdc.get_soft_intlk_list(intlk)
+            msg = QMessageBox()
+            msg.setIcon(QMessageBox.Information)
+            msg.setText("Listagem de Interlocks:")
+            if len(intlk_list) is not 0:
+                txt = ""
+                for item in intlk_list:
+                    txt += item + "\n"
+                msg.setInformativeText(txt)
+            else:
+                msg.setInformativeText("Não há interlocks ativos!")
+
+            msg.setWindowTitle("Interlocks")
+            msg.setStandardButtons(QMessageBox.Ok)
+            msg.exec_()
+        except:
+            pass
 
     @pyqtSlot()
     def _soft_intlk_reset_fac_dcdc(self):
@@ -390,7 +408,25 @@ class PowerSupplyTestInterface(QWidget):
 
     @pyqtSlot()
     def _hard_intlk_info_fac_dcdc(self):
-        res = self._fac_dcdc.hard_intlk_info()
+        try:
+            intlk = int(self.le_hard_intlk_fac_dcdc.text())
+            intlk_list = self._fac_dcdc.get_hard_intlk_list(intlk)
+            msg = QMessageBox()
+            msg.setIcon(QMessageBox.Information)
+            msg.setText("Listagem de Interlocks:")
+            if len(intlk_list) is not 0:
+                txt = ""
+                for item in intlk_list:
+                    txt += item + "\n"
+                msg.setInformativeText(txt)
+            else:
+                msg.setInformativeText("Não há interlocks ativos!")
+
+            msg.setWindowTitle("Interlocks")
+            msg.setStandardButtons(QMessageBox.Ok)
+            msg.exec_()
+        except:
+            pass
 
     @pyqtSlot()
     def _hard_intlk_reset_fac_dcdc(self):
@@ -529,7 +565,25 @@ class PowerSupplyTestInterface(QWidget):
 
     @pyqtSlot()
     def _intlk_info_fbp_dclink(self):
-        pass
+        try:
+            intlk = int(self.le_intlk_fbp_dclink.text())
+            intlk_list = self._fbp_dclink.get_intlk_list(intlk)
+            msg = QMessageBox()
+            msg.setIcon(QMessageBox.Information)
+            msg.setText("Listagem de Interlocks:")
+            if len(intlk_list) is not 0:
+                txt = ""
+                for item in intlk_list:
+                    txt += item + "\n"
+                msg.setInformativeText(txt)
+            else:
+                msg.setInformativeText("Não há interlocks ativos!")
+
+            msg.setWindowTitle("Interlocks")
+            msg.setStandardButtons(QMessageBox.Ok)
+            msg.exec_()
+        except:
+            pass
 
     @pyqtSlot()
     def _intlk_reset_fbp_dclink(self):
@@ -539,6 +593,7 @@ class PowerSupplyTestInterface(QWidget):
     def _write_digital_pot_slider(self):
         try:
             pot_val = self.sl_digital_pot_fbp_dclink.value()
+            pot_val_int = int(pot_val)
             self.le_digital_pot_write_fbp_dclink.setText(str(pot_val))
             self.write_reference_voltage(pot_val)
         except:
