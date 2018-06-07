@@ -108,21 +108,28 @@ class FacDcdc(QThread):
     def send_setpoint(self, value):
         res = self._drs.set_slowref(value)
 
+    def check_interlocks(self):
+        res = True
+        intlk = self._drs.read_bsmp_variable(26, 'uint32_t')
+        if intlk is 0:
+            res = False
+        return res
+
     def update_params(self):
         try:
-            self._screen_readings['setpoint']           = self._drs.read_bsmp_variable(1, 'float')
-            self._screen_readings['reference']          = self._drs.read_bsmp_variable(2, 'float')
+            self._screen_readings['setpoint']           = round(self._drs.read_bsmp_variable(1, 'float'), 3)
+            self._screen_readings['reference']          = round(self._drs.read_bsmp_variable(2, 'float'), 3)
             self._screen_readings['slowref_counter']    = self._drs.read_bsmp_variable(4, 'uint32_t')
             self._screen_readings['syncpulse_counter']  = self._drs.read_bsmp_variable(5, 'uint32_t')
             self._screen_readings['soft_intlk']         = self._drs.read_bsmp_variable(25, 'uint32_t')
             self._screen_readings['hard_intlk']         = self._drs.read_bsmp_variable(26, 'uint32_t')
-            self._screen_readings['iload_1']            = self._drs.read_bsmp_variable(27, 'float')
-            self._screen_readings['iload_2']            = self._drs.read_bsmp_variable(28, 'float')
-            self._screen_readings['vload']              = self._drs.read_bsmp_variable(29, 'float')
-            self._screen_readings['vcapbank']           = self._drs.read_bsmp_variable(30, 'float')
-            self._screen_readings['induc_temp']         = self._drs.read_bsmp_variable(31, 'float')
-            self._screen_readings['igbt_temp']          = self._drs.read_bsmp_variable(32, 'float')
-            self._screen_readings['duty_cycle']         = self._drs.read_bsmp_variable(33, 'float')
+            self._screen_readings['iload_1']            = round(self._drs.read_bsmp_variable(27, 'float'), 3)
+            self._screen_readings['iload_2']            = round(self._drs.read_bsmp_variable(28, 'float'), 3)
+            self._screen_readings['vload']              = round(self._drs.read_bsmp_variable(29, 'float'), 3)
+            self._screen_readings['vcapbank']           = round(self._drs.read_bsmp_variable(30, 'float'), 3)
+            self._screen_readings['induc_temp']         = round(self._drs.read_bsmp_variable(31, 'float'), 3)
+            self._screen_readings['igbt_temp']          = round(self._drs.read_bsmp_variable(32, 'float'), 3)
+            self._screen_readings['duty_cycle']         = round(self._drs.read_bsmp_variable(33, 'float'), 3)
             self._screen_readings['fwr_version']        = self._drs.read_udc_arm_version()
             self.update_gui.emit(self._screen_readings)
         except:

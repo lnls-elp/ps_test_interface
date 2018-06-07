@@ -344,10 +344,12 @@ class PowerSupplyTestInterface(QWidget):
 
     @pyqtSlot()
     def _turn_on_fac_dcdc(self):
-        self._fac_dcdc.turn_on()
-        self.pb_turn_on_fac_dcdc.setEnabled(False)
-        self.pb_turn_off_fac_dcdc.setEnabled(True)
-        self._update_gui_params()
+        intlk = self._fac_dcdc.check_interlocks()
+        if not intlk:
+            self._fac_dcdc.turn_on()
+            self.pb_turn_on_fac_dcdc.setEnabled(False)
+            self.pb_turn_off_fac_dcdc.setEnabled(True)
+            self._update_gui_params()
 
     @pyqtSlot()
     def _turn_off_fac_dcdc(self):
@@ -549,19 +551,27 @@ class PowerSupplyTestInterface(QWidget):
     @pyqtSlot()
     def _turn_on_fbp_dclink(self):
         try:
-            self._fbp_dclink.turn_on()
-            self.pb_turn_on_fbp_dclink.setEnabled(False)
-            self.pb_turn_off_fbp_dclink.setEnabled(True)
-            self._update_gui_params()
+            intlk = self._fbp_dclink.check_interlocks()
+            if not intlk:
+                self._fbp_dclink.turn_on()
+                self.pb_turn_on_fbp_dclink.setEnabled(False)
+                self.pb_turn_off_fbp_dclink.setEnabled(True)
+                ref = self._fbp_dclink.get_current_reference()
+                self.le_digital_pot_write_fbp_dclink.setText(str(ref))
+                self.sl_digital_pot_fbp_dclink.setSliderPosition(ref)
+                self._update_gui_params()
         except:
             pass
 
     @pyqtSlot()
     def _turn_off_fbp_dclink(self):
-        self._fbp_dclink.turn_off()
-        self.pb_turn_on_fbp_dclink.setEnabled(True)
-        self.pb_turn_off_fbp_dclink.setEnabled(False)
-        self._update_gui_params()
+        try:
+            self._fbp_dclink.turn_off()
+            self.pb_turn_on_fbp_dclink.setEnabled(True)
+            self.pb_turn_off_fbp_dclink.setEnabled(False)
+            self._update_gui_params()
+        except:
+            pass
 
     @pyqtSlot()
     def _intlk_info_fbp_dclink(self):
@@ -603,8 +613,8 @@ class PowerSupplyTestInterface(QWidget):
     def _write_digital_pot_line_edit(self):
         try:
             val = int(self.le_digital_pot_write_fbp_dclink.text())
-            if val < 0:
-                val = 0
+            if val < 25:
+                val = 25
                 self.le_digital_pot_write_fbp_dclink.setText(str(0))
             elif val > 100:
                 val = 100

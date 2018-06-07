@@ -9,8 +9,8 @@ class FbpDclink(QThread):
         QThread.__init__(self)
 
         self._is_active = False
-        #self._baudrate = '6000000'
-        self._baudrate = '115200'
+        self._baudrate = '6000000'
+        #self._baudrate = '115200'
         self._drs = SerialDRS()
 
         self._screen_readings = {
@@ -41,6 +41,7 @@ class FbpDclink(QThread):
     def connect_serial(self, com_port):
         if com_port is not None:
             res = self._drs.Connect(com_port, self._baudrate)
+            self._drs.SetSlaveAdd(20)
         return res
 
     def disconnect_serial(self):
@@ -53,30 +54,35 @@ class FbpDclink(QThread):
         return res
 
     def turn_off(self):
-        try:
-            res = self._drs.turn_off()
-            self._is_active = False
-            return res
-        except:
-            pass
-
-    def intlk_info(self):
-        pass
+        res = self._drs.turn_off()
+        self._is_active = False
+        return res
 
     def intlk_reset(self):
         self._drs.reset_interlocks()
 
     def write_reference_voltage(self, val):
-        self._drs.write_digital_pot_voltage(val)
+        self._drs.set_slowref(val)
+
+    def check_interlocks(self):
+        res = True
+        intlk = self._drs.read_bsmp_variable(26, 'uint32_t')
+        if intlk is 0:
+            res = False
+        return res
+
+    def get_current_reference(self):
+        ref = int(self._drs.read_bsmp_variable(2, 'float'))
+        return ref
 
     def update_params(self):
         try:
-            self._screen_readings['vdclink_2']          = round(self._drs.read_bsmp_variable(32, 'float'), 3)
+            self._screen_readings['vdclink_2']          = round(self._drs.read_bsmp_variable(30, 'float'), 3)
         except:
             pass
 
         try:
-            self._screen_readings['digital_pot_read']   = round(self._drs.read_bsmp_variable(36, 'float'), 3)
+            self._screen_readings['digital_pot_read']   = round(self._drs.read_bsmp_variable(28, 'float'), 3)
         except:
             pass
 
@@ -86,17 +92,17 @@ class FbpDclink(QThread):
             pass
 
         try:
-            self._screen_readings['vdclink_1']          = round(self._drs.read_bsmp_variable(31, 'float'), 3)
+            self._screen_readings['vdclink_1']          = round(self._drs.read_bsmp_variable(29, 'float'), 3)
         except:
             pass
 
         try:
-            self._screen_readings['vdclink_3']          = round(self._drs.read_bsmp_variable(33, 'float'), 3)
+            self._screen_readings['vdclink_3']          = round(self._drs.read_bsmp_variable(31, 'float'), 3)
         except:
             pass
 
         try:
-            self._screen_readings['fault_status']       = self._drs.read_bsmp_variable(34, 'uint16_t')
+            self._screen_readings['fault_status']       = self._drs.read_bsmp_variable(27, 'uint16_t')
         except:
             pass
 
